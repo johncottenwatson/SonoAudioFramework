@@ -15,12 +15,13 @@ import Foundation
 public class SAFAudioRenderer {
     // State
     public static let shared = SAFAudioRenderer()
-    public var volume: Float {
+    public static var root: SAFNode = SAFVal(0)
+    public static var volume: Float {
         set {
-            audioEngine.mainMixerNode.outputVolume = newValue
+            shared.audioEngine.mainMixerNode.outputVolume = newValue
         }
         get {
-            return audioEngine.mainMixerNode.outputVolume
+            return shared.audioEngine.mainMixerNode.outputVolume
         }
     }
     private var audioEngine: AVAudioEngine
@@ -31,7 +32,7 @@ public class SAFAudioRenderer {
     private lazy var srcNode = AVAudioSourceNode { (_, _, frameCount, audioBufferList) -> OSStatus in
             let ablPointer = UnsafeMutableAudioBufferListPointer(audioBufferList)
             for frame in 0..<Int(frameCount) {
-                let sample = self.root.getSample(self.time)
+                let sample = SAFAudioRenderer.root.getSample(self.time)
                 self.time += self.deltaTime
                 for buffer in ablPointer {
                     let buf: UnsafeMutableBufferPointer<Float> = UnsafeMutableBufferPointer(buffer)
@@ -40,12 +41,9 @@ public class SAFAudioRenderer {
             }
             return noErr
         }
-    public var root: SAFNode
     
-    // Init without SAFNode parameters
-    public init() {
-        // Prepare node (create default node since no parameters were given)
-        root = SAFVal(0)
+    // Private init for singleton
+    private init() {
         // Prepare output
         audioEngine = AVAudioEngine()
         let mainMixer = audioEngine.mainMixerNode
@@ -67,36 +65,4 @@ public class SAFAudioRenderer {
            print("Could not start engine: \(error.localizedDescription)")
         }
     }
-    
-    /**
-    // Init with SAFNode parameters
-    public init(@SAFAudioObjectBuilder builder: () -> [SAFNode]) {
-        // Prepare node
-        let SAFNodes = builder()
-        if SAFNodes.count != 1 {
-            fatalError("Invalid number of parameters for SAFAudioRenderer- expected 1 but got \(SAFNodes.count)")
-        }
-        node = SAFNodes[0]
-        // Prepare output
-        audioEngine = AVAudioEngine()
-        let mainMixer = audioEngine.mainMixerNode
-        let outputNode = audioEngine.outputNode
-        let format = outputNode.inputFormat(forBus: 0)
-        
-        sampleRate = format.sampleRate
-        deltaTime = 1 / Float(sampleRate)
-        
-        // Prepare input
-        let inputFormat = AVAudioFormat(commonFormat: format.commonFormat, sampleRate: sampleRate, channels: 1, interleaved: format.isInterleaved)
-        audioEngine.attach(srcNode)
-        audioEngine.connect(srcNode, to: mainMixer, format: inputFormat)
-        audioEngine.connect(mainMixer, to: outputNode, format: nil)
-        mainMixer.outputVolume = 0
-        do {
-           try audioEngine.start()
-        } catch {
-           print("Could not start engine: \(error.localizedDescription)")
-        }
-    }
-    */
 }

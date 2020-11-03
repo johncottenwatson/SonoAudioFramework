@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import Foundation
 @testable import SonoAudioFramework
 
 class SonoAudioFrameworkTests: XCTestCase {
@@ -20,9 +21,9 @@ class SonoAudioFrameworkTests: XCTestCase {
 
     // Tests initializing an SAFAudioRenderer
     func testInitialization() throws {
-        SAFAudioRenderer.shared.root = SAFVal(0)
+        SAFAudioRenderer.root = SAFVal(0)
         // Make sure audio renderer has initialized corrected by checking initial volume
-        XCTAssertEqual(SAFAudioRenderer.shared.volume, 0)
+        XCTAssertEqual(SAFAudioRenderer.volume, 0)
     }
    
     // Tests that an oscillator begins at 0
@@ -34,56 +35,117 @@ class SonoAudioFrameworkTests: XCTestCase {
         XCTAssertEqual((sine.getSample(0)), 0)
     }
     
+    // Tests the first example shown in the README.md
+    func testREADMEExample1() {
+        // Change the root of the SAFAudioRenderer to our sine oscillator
+        SAFAudioRenderer.root = SAFSine {
+            SAFVal(440)
+        }
+        // Turn audio renderer on
+        SAFAudioRenderer.volume = 0.5
+        // Play the tone audibly for 5 seconds
+        sleep(5)
+        SAFAudioRenderer.volume = 0
+    }
+    
+    // Tests second example shown in the README.md
+    func testREADMEExample2() {
+        // Create a node for the base frequency
+        var baseFrequency = SAFVal(440)
+        // Interval ratios of all the harmonics (including base harmonic)
+        var harmonics = [SAFVal(1.0), SAFVal(1.25), SAFVal(1.5), SAFVal(2.0)]
+        // Create a node for the LFO speed
+        var lfoSpeed = SAFVal(4.5)
+        // One oscillator of the synth with the LFO applied to its frequency
+        func osc (frequency: SAFVal, interval: SAFVal) -> (SAFNode) {
+            return SAFTriangle() {
+                SAFMultiply() {
+                    frequency
+                    interval
+                }
+                SAFMultiply() {
+                    SAFMultiply() {
+                        frequency
+                        SAFVal(0.01)
+                    }
+                    SAFSine() {
+                        lfoSpeed
+                    }
+                }
+            }
+        }
+        // Change the root of the SAFAudioRenderer to our synth
+        SAFAudioRenderer.root = SAFMultiply {
+            SAFVal(0.25)
+            SAFAdd() {
+                osc(frequency: baseFrequency, interval: harmonics[0])
+                osc(frequency: baseFrequency, interval: harmonics[1])
+                osc(frequency: baseFrequency, interval: harmonics[2])
+                osc(frequency: baseFrequency, interval: harmonics[3])
+            }
+        }
+        // Turn audio renderer on
+        SAFAudioRenderer.volume = 0.5
+        // Change baseFrequency.val to change frequency of synth in real time
+        // Change harmonics[n].val to change harmonic n of synth in real time
+        // Change lfoSpeed.val to change LFO speed of synth in real time
+
+        // Play the tone audibly for 5 seconds
+        sleep(5)
+        SAFAudioRenderer.volume = 0
+    }
+    
     // Tests a simple sine oscillator
     func testSine() {
-        SAFAudioRenderer.shared.root = SAFSine() {
+        SAFAudioRenderer.root = SAFSine() {
             SAFVal(400)
         }
         
-        SAFAudioRenderer.shared.volume = 1
+        SAFAudioRenderer.volume = 1
         // Play the tone audibly for 5 seconds
         sleep(5)
-        SAFAudioRenderer.shared.volume = 0
+        SAFAudioRenderer.volume = 0
     }
+    
     // Tests a simple triangle oscillator
     func testTriangle() {
-        SAFAudioRenderer.shared.root = SAFTriangle() {
+        SAFAudioRenderer.root = SAFTriangle() {
             SAFVal(400)
         }
         
-        SAFAudioRenderer.shared.volume = 1
+        SAFAudioRenderer.volume = 1
         // Play the tone audibly for 5 seconds
         sleep(5)
-        SAFAudioRenderer.shared.volume = 0
+        SAFAudioRenderer.volume = 0
     }
     
     // Tests a simple sawtooth oscillator
     func testSaw() {
-        SAFAudioRenderer.shared.root = SAFSaw() {
+        SAFAudioRenderer.root = SAFSaw() {
             SAFVal(400)
         }
         
-        SAFAudioRenderer.shared.volume = 1
+        SAFAudioRenderer.volume = 1
         // Play the tone audibly for 5 seconds
         sleep(5)
-        SAFAudioRenderer.shared.volume = 0
+        SAFAudioRenderer.volume = 0
     }
     
     // Tests a simple square oscillator
     func testSquare() {
-        SAFAudioRenderer.shared.root = SAFSquare() {
+        SAFAudioRenderer.root = SAFSquare() {
             SAFVal(400)
         }
         
-        SAFAudioRenderer.shared.volume = 1
+        SAFAudioRenderer.volume = 1
         // Play the tone audibly for 5 seconds
         sleep(5)
-        SAFAudioRenderer.shared.volume = 0
+        SAFAudioRenderer.volume = 0
     }
 
     // Tests a more complicated synth composed of oscillators and operators
     func testComposite() {
-        SAFAudioRenderer.shared.root = SAFMultiply() {
+        SAFAudioRenderer.root = SAFMultiply() {
             SAFVal(0.25)
             SAFAdd() {
                 SAFTriangle() {
@@ -133,10 +195,10 @@ class SonoAudioFrameworkTests: XCTestCase {
             }
         }
         
-        SAFAudioRenderer.shared.volume = 1
+        SAFAudioRenderer.volume = 1
         // Play the tone audibly for 5 seconds
         sleep(5)
-        SAFAudioRenderer.shared.volume = 0
+        SAFAudioRenderer.volume = 0
     }
     
     // Tests updating parameters of an SAFNode
