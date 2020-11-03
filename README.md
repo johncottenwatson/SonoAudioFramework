@@ -62,20 +62,21 @@ SAFAudioRenderer.volume = 0.5
 
 
 ### Current SAFNode Types
-OPERATORS:
-SAFAdd - outputs the sum of the current samples of all inputs
-SAFMultiply - outputs the product of the current samples of all inputs
+**Operators:**\
+SAFAdd - outputs the sum of the current samples of all inputs\
+SAFMultiply - outputs the product of the current samples of all inputs\
 
-OSCILLATORS:
-SAFSine – outputs a simple sine wave, with sum of inputs as frequency
-SAFTriangle – outputs a triangle wave, with sum of inputs as frequency
-SAFSaw – outputs a sawtooth wave, with sum of inputs as frequency
-SAFSquare – outputs a square wave, with sum of inputs as frequency
+**Oscillators:**\
+SAFSine – outputs a simple sine wave, with sum of inputs as frequency\
+SAFTriangle – outputs a triangle wave, with sum of inputs as frequency\
+SAFSaw – outputs a sawtooth wave, with sum of inputs as frequency\
+SAFSquare – outputs a square wave, with sum of inputs as frequency\
 
-OTHER:
-SAFVal – a simple node which takes no inputs and outputs a constant signal
+**Other:**\
+SAFVal – a simple node which takes no inputs and outputs a constant signal\
 
-COMING SOON:
-SAFLine
-SAFMap
+**Coming Soon**\
+SAFLine\
+SAFMap\
 SAFCycle
+
