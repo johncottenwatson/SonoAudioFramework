@@ -75,8 +75,3 @@ SAFSquare – outputs a square wave, with sum of inputs as frequency
 **Other:**\
 SAFVal – a simple node which takes no inputs and outputs a constant signal
 
-**Coming Soon**\
-SAFLine\
-SAFMap\
-SAFCycle
-
